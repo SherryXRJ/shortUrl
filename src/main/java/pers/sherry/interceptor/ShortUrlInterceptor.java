@@ -15,14 +15,10 @@ public class ShortUrlInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-//        System.out.println(request.getRequestURL());
-//        Map<String, String[]> map = request.getParameterMap();
-//        System.out.println(map);
-//        System.out.println(request.getContextPath() + "/visit/" + request.getParameter("shortUrl"));
-//        response.sendRedirect("localhost:6060/" + "/shortUrl/visit/" + request.getParameter("shortUrl"));
-        System.out.println(request.getQueryString());
-//        request.getRequestDispatcher("/shortUrl/visit/" + request.getParameter("shortUrl")).forward(request, response);
-        response.sendRedirect("/shortUrl/visit/xxxx");
+        request.getRequestDispatcher("/shortUrl/visit").forward(request, response);
+        System.out.println(request.getServletPath());
+        //  拦截短地址 重定向到指定接口
+//        response.sendRedirect("http://" + request.getServerName() + ":" + request.getServerPort() + "/shortUrl/visit" + request.getServletPath());
         return false;
     }
 }

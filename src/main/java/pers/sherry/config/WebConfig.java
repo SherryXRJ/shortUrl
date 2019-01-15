@@ -23,6 +23,6 @@ public class WebConfig implements WebMvcConfigurer {
         //  添加拦截器
         registry.addInterceptor(new ShortUrlInterceptor())
                 .addPathPatterns(SHORT_URL_PREFIX)
-                .excludePathPatterns("/visit/**");
+                .excludePathPatterns("/shortUrl/visit/**");
     }
 }

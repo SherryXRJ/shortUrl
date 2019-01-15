@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pers.sherry.dao.UrlDao">
-
     <!-- 查询满足条件的链接数量 -->
     <select id="queryUrlCount" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM url
@@ -23,5 +22,16 @@
     <select id="queryLongUrlByShort" resultType="java.lang.String">
         SELECT long_url FROM url WHERE short_url = #{short_url}
     </select>
+
+    <!-- 更新短链接长度 -->
+    <update id="updateConfig">
+        UPDATE config SET `value` = #{value} WHERE `key` = #{key}
+    </update>
+
+    <!-- 短链接配置长度 -->
+    <select id="getShortUrlConfigLength" resultType="java.lang.Integer">
+        SELECT `value` FROM config WHERE `key` = 'short_len'
+    </select>
+
 
 </mapper>

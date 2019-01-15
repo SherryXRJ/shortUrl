@@ -3,11 +3,7 @@ package pers.sherry.controller;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 import pers.sherry.constant.Constant;
@@ -37,7 +33,7 @@ public class ShortUrlController {
      * @param urlDO  链接参数
      * @return 生成后的短链接
      */
-    @RequestMapping("/long2Short")
+    @RequestMapping(value = "/long2Short", method = RequestMethod.POST)
     @ResponseBody
     public Map<String, Object> long2Short(@RequestBody UrlDO urlDO){
         //  1.参数校验
@@ -47,7 +43,7 @@ public class ShortUrlController {
 
         //  2.对短链接进行校验
         String shortUrl = !StringUtils.isEmpty(urlDO.getShortUrl())
-                ? urlDO.getShortUrl() : ShortUrlUtil.generateShortUrl(longUrl, 4);//  TODO: 暂时定为4位
+                ? urlDO.getShortUrl() : ShortUrlUtil.generateShortUrl(longUrl, urlDao.getShortUrlConfigLength());
         //  2.1判断短链接是否已经存在
         Integer count = Optional.ofNullable(urlDao.queryUrlCount(shortUrl, null)).orElse(0);
         if (count > 0) {
@@ -65,8 +61,8 @@ public class ShortUrlController {
      * @param shortUrl 短链接
      * @return 重定向的View
      */
-    @RequestMapping("/visit/s.my/{shortUrl}")
-    public ModelAndView visit(@PathVariable(name = "shortUrl") String shortUrl) {
+    @RequestMapping(value = "/visit/s.my/{shortUrl}", method = RequestMethod.GET)
+    public ModelAndView visit(@PathVariable(name = "shortUrl") String shortUrl) throws Exception{
         Optional.ofNullable(shortUrl).orElseThrow(() -> new RuntimeException("请输入短链接"));
 
         String longUrl = urlDao.queryLongUrlByShort(shortUrl);
@@ -85,10 +81,24 @@ public class ShortUrlController {
      * @param shortUrl  短链接地址
      * @return  被访问的次数
      */
-    @RequestMapping("/getShortUrlVisitCount/{shortUrl}")
+    @RequestMapping(value = "/getShortUrlVisitCount/{shortUrl}", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> getShortUrlVisitCount(@PathVariable(name = "shortUrl") String shortUrl) {
         return generateSuccess(Optional.ofNullable(shardedJedis.get(shortUrl)).orElse("0"));
+    }
+
+
+    /**
+     * 配置生成短链接长度
+     * @param length    需要配置的长度
+     * @return 是否成功
+     */
+    @RequestMapping(value = "/configShortUrlLength/{length}", method = RequestMethod.PUT)
+    @ResponseBody
+    public Map<String, Object> configShortUrlLength(@PathVariable(name = "length") Integer length){
+        ShortUrlUtil.checkShortLength(length);
+        urlDao.updateConfig(Constant.CONFIG_KEY_SHORT_LEN, String.valueOf(length));
+        return generateSuccess("更新成功. 新生成的短链接长度为:" + length);
     }
 
     private Map<String, Object> generateSuccess(String msg){
@@ -102,7 +112,7 @@ public class ShortUrlController {
      * 异常处理
      */
     @ResponseBody
-    @ExceptionHandler
+    @ExceptionHandler(value = Throwable.class)
     public Map<String, Object> handlerException(Throwable ex) {
         Map<String, Object> result = new HashMap<>();
         result.put("code", Constant.CODE_BUSINESS_ERROR);

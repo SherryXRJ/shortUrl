@@ -35,8 +35,7 @@ public class CountAspect {
             shardedJedis.incr(shortUrl);    //  使用Redis统计短链接被访问次数
             return result;
         } catch (Throwable throwable) {
-            throwable.printStackTrace();
-            return null;
+            throw new RuntimeException(throwable.getMessage());
         }
     }
 }

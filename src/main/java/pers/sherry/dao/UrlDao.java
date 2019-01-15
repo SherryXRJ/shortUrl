@@ -2,6 +2,8 @@ package pers.sherry.dao;
 
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface UrlDao {
@@ -27,4 +29,17 @@ public interface UrlDao {
      * @return  短链接对应的长链接
      */
     String queryLongUrlByShort(String shortUrl);
+
+    /**
+     * 更新配置
+     * @param key   键
+     * @param value 值
+     */
+    void updateConfig(@Param("key") String key,@Param("value") String value);
+
+    /**
+     * 获取配置中短链接的长度
+     * @return  短链接配置长度
+     */
+    Integer getShortUrlConfigLength();
 }

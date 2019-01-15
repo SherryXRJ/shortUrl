@@ -13,6 +13,9 @@ import redis.clients.jedis.ShardedJedisPool;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Redis相关配置
+ */
 @Configuration
 @EnableCaching
 public class RedisConfiguration {
